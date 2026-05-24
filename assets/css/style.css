@@ -1,0 +1,92 @@
+/* assets/css/style.css */
+:root {
+    --primary-color: #0f172a; /* كحلي داكن للمظهر الاحترافي */
+    --accent-color: #f59e0b;  /* أصفر عنبري جذاب للأزرار والتنبيهات */
+    --text-color: #334155;    /* رمادي غامق مريح للقراءة */
+    --light-bg: #f8fafc;      /* خلفية فاتحة ونظيفة */
+    --white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--light-bg);
+    color: var(--text-color);
+    direction: rtl; 
+    text-align: right;
+    position: relative;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* الهيدر والنايجيتور */
+header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 15px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header .logo a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+header nav ul li a {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+header nav ul li a:hover {
+    color: var(--accent-color);
+}
+
+.cart-icon a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 20px;
+    position: relative;
+}
+
+#cart-count {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+    border-radius: 50%;
+    padding: 2px 7px;
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    top: -12px;
+    right: -15px;
+}
+
+/* تنسيق الفوتر المتجاوب */
+footer {
+    background-color: var(--primary-color);
+    color: #94a3b8;
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    width: 100%;
+    margin-top: 50px;
+}
