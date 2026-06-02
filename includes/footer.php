@@ -1,5 +1,5 @@
 <footer style="background-color: #0f172a; color: #94a3b8; text-align: center; padding: 20px; margin-top: 40px; border-top: 1px solid #334155;">
-    <p>© <?php echo date("Y"); ?> TechZone - جميع الحقوق محفوظة | ذكاء بشري واجتهاد شخصي لعلامة المشروع الكاملة</p> </footer>
+    <p>© <?php echo date("Y"); ?> TechZone </p> </footer>
 </body>
 </html>
 <script>
