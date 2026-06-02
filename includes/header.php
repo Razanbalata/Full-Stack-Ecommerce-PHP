@@ -2,7 +2,33 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// حل مشكلة المسار الديناميكي عبر تحديد المجلد الرئيسي للمشروع (php-ecommerce-project)
+$base_dir = dirname(__DIR__); 
+$db_path = $base_dir . '/includes/db.php';
+
+if (file_exists($db_path)) {
+    require_once $db_path;
+}
+
+$cartCount = 0;
+
+// التحقق من وجود الجلسة والاتصال قبل تشغيل الاستعلام
+if (isset($_SESSION['user_id']) && isset($conn) && $conn instanceof mysqli) {
+    $uid = (int)$_SESSION['user_id'];
+
+    // استعلام مباشر وسريع لحساب إجمالي الكميات في السلة
+    $query = "SELECT SUM(quantity) AS total FROM cart_items WHERE user_id = $uid";
+    $result = mysqli_query($conn, $query);
+
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        $cartCount = isset($row['total']) ? (int)$row['total'] : 0;
+    }
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -10,13 +36,12 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EliteShop | متجرك الإلكتروني المتميز</title>
-    
+
     <link rel="stylesheet" href="/php-ecommerce-project/assets/css/style.css">
 
-    <!-- تنسيقات التجاوب والـ Dropdown للشاشات الصغيرة -->
     <style>
         header {
-            background-color: #0c2340; /* اللون الكحلي الفاخر المعتمد */
+            background-color: #0c2340;
             padding: 15px 4%;
             display: flex;
             align-items: center;
@@ -50,7 +75,6 @@ if (session_status() === PHP_SESSION_NONE) {
             right: -10px;
         }
 
-        /* زر القائمة المنسدلة للشاشات الصغيرة (مخفي افتراضياً) */
         .menu-toggle-btn {
             display: none;
             background: none;
@@ -58,36 +82,30 @@ if (session_status() === PHP_SESSION_NONE) {
             color: white;
             font-size: 24px;
             cursor: pointer;
-            outline: none;
         }
 
-        /* الشاشات الصغيرة (الجوال) */
         @media (max-width: 668px) {
             .menu-toggle-btn {
-                display: block; /* إظهار زر التحكم بالمنسدلة */
+                display: block;
             }
 
             nav {
-                display: none; /* إخفاء القائمة الأساسية لتتحول إلى دروب داون */
+                display: none;
                 position: absolute;
                 top: 100%;
                 left: 0;
                 right: 0;
                 background-color: #0c2340;
-                box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-                border-top: 1px solid rgba(255,255,255,0.1);
                 z-index: 999;
             }
 
-            /* كلاس يضيفه الجافاسكريبت لإظهار الدروب داون */
             nav.open-dropdown {
                 display: block;
             }
 
             nav ul {
                 flex-direction: column;
-                padding: 15px 20px;
-                margin: 0;
+                padding: 15px;
                 list-style: none;
             }
 
@@ -96,16 +114,11 @@ if (session_status() === PHP_SESSION_NONE) {
             }
 
             nav ul li a {
-                display: block;
-                color: #ffffff;
+                color: white;
                 text-decoration: none;
-                font-size: 16px;
-                padding-bottom: 8px;
-                border-bottom: 1px solid rgba(255,255,255,0.05);
             }
         }
 
-        /* الشاشات الكبيرة (الافتراضي المتناسق مع الصورة) */
         @media (min-width: 669px) {
             nav ul {
                 display: flex;
@@ -114,8 +127,9 @@ if (session_status() === PHP_SESSION_NONE) {
                 margin: 0;
                 padding: 0;
             }
+
             nav ul li a {
-                color: #ffffff;
+                color: white;
                 text-decoration: none;
                 font-size: 15px;
             }
@@ -124,30 +138,32 @@ if (session_status() === PHP_SESSION_NONE) {
 </head>
 
 <body>
+
     <header>
-        <!-- زر الهمبرغر للتحكم بالدروب داون في الجوال -->
+
         <button class="menu-toggle-btn" onclick="toggleDropdown()">☰</button>
 
         <div class="logo">
             <a href="/php-ecommerce-project/index.php">EliteShop</a>
         </div>
 
-        <?php
-        // تضمين القائمة كما هي
-        include __DIR__ . '/navbar.php';
-        ?>
+        <?php include __DIR__ . '/navbar.php'; ?>
 
         <div class="cart-icon">
             <a href="/php-ecommerce-project/pages/cart.php">
-                🛒 <span id="cart-count">5</span>
+                🛒
+                <span id="cart-count">
+                    <?= $cartCount ?>
+                </span>
             </a>
         </div>
+
     </header>
 
-    <!-- كود جافاسكريبت بسيط جداً لتشغيل فتح وإغلاق الدروب داون -->
     <script>
         function toggleDropdown() {
-            var navbar = document.querySelector('nav');
-            navbar.classList.toggle('open-dropdown');
+            document.querySelector('nav').classList.toggle('open-dropdown');
         }
     </script>
+</body>
+</html>

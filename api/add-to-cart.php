@@ -40,5 +40,7 @@ $stmt = $conn->prepare("
 $stmt->bind_param('iiii', $userId, $productId, $quantity, $quantity);
 $stmt->execute();
 
-header("Location: $redirect&success=added");
+$redirect .= (strpos($redirect, '?') !== false) ? '&' : '?';
+header("Location: $redirect" . "success=added");
+
 exit;
