@@ -56,7 +56,7 @@ $featured = $conn->query(
                         <form action="/php-ecommerce-project/api/add-to-cart.php" method="POST" style="width: 85%;">
                             <input type="hidden" name="product_id" value="<?= $p['product_id'] ?>">
                             <input type="hidden" name="quantity" value="1">
-                            <input type="hidden" name="redirect" value="/">
+                            <input type="hidden" name="redirect" value="/php-ecommerce-project/">
                             <button type="submit" style="width: 100%; background-color: #0f172a; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s;">أضف إلى السلة</button>
                         </form>
 

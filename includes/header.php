@@ -165,5 +165,3 @@ if (isset($_SESSION['user_id']) && isset($conn) && $conn instanceof mysqli) {
             document.querySelector('nav').classList.toggle('open-dropdown');
         }
     </script>
-</body>
-</html>
