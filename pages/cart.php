@@ -110,138 +110,189 @@ while ($row = $cartItems->fetch_assoc()) {
 $finalTotal = $subtotal * 1.16;
 ?>
 
-<!-- الخلفية الرمادية الفاتحة المحيطة بالبطاقة بالكامل -->
-<div style="background-color: #f0f4f8; min-height: 85vh; padding: 40px 20px; font-family: system-ui, -apple-system, sans-serif; direction: rtl; box-sizing: border-box;">
-    <main style="max-width: 1100px; margin: 0 auto;">
+<style>
+    .cart-layout-container {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 30px;
+        align-items: flex-start;
+    }
+    .cart-items-section {
+        flex: 1.7;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .cart-summary-section {
+        flex: 1;
+        position: sticky;
+        top: 20px;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+        border: 1px solid #e2e8f0;
+    }
+    .product-card-row {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+    }
+    .qty-input-field {
+        width: 55px; 
+        padding: 8px; 
+        border: 1px solid #cbd5e1; 
+        border-radius: 10px; 
+        text-align: center; 
+        font-size: 14px; 
+        font-weight: 600; 
+        outline: none;
+        background: #f8fafc;
+    }
+    .btn-delete-item {
+        background: #fef2f2;
+        color: #ef4444;
+        border: 1px solid #fee2e2;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-delete-item:hover {
+        background: #ef4444;
+        color: #ffffff;
+    }
+    @media (max-width: 900px) {
+        .cart-layout-container {
+            flex-direction: column;
+        }
+        .product-card-row {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<div style="background-color: #f8fafc; min-height: 85vh; padding: 50px 20px; font-family: system-ui, -apple-system, sans-serif; direction: rtl; box-sizing: border-box;">
+    <main style="max-width: 1200px; margin: 0 auto;">
 
         <?php if (!empty($checkoutSuccess)): ?>
-        <!-- واجهة التنبيه بنجاح إتمام الطلب -->
         <div style="text-align: center; padding: 50px 20px; background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-width: 500px; margin: 40px auto; border: 1px solid #e2e8f0;">
             <div style="font-size: 55px; margin-bottom: 15px;">🎉</div>
             <h2 style="color: #10b981; font-weight: bold; margin-bottom: 12px; font-size: 24px;">تم تقديم طلبك بنجاح!</h2>
             <p style="color: #64748b; font-size: 15px; margin-bottom: 25px;">رقم طلبك المميز هو: <strong style="color: #0f172a;">#<?= $orderId ?></strong></p>
-            <a href="/php-ecommerce-project/pages/products.php" style="background-color: #0c2340; color: white; padding: 12px 35px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; font-size: 14px;">تسوق مجدداً ←</a>
+            <a href="/php-ecommerce-project/pages/products.php" style="background-color: #0f172a; color: white; padding: 12px 35px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; font-size: 14px;">تسوق مجدداً ←</a>
         </div>
 
         <?php elseif (empty($items)): ?>
-        <!-- واجهة السلة فارغة -->
         <div style="text-align: center; padding: 60px 20px; background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-width: 550px; margin: 40px auto; border: 1px dashed #cbd5e1;">
             <div style="font-size: 55px; margin-bottom: 15px;">🛒</div>
             <h2 style="color: #475569; font-weight: bold; margin-bottom: 10px; font-size: 22px;">سلة المشتريات فارغة</h2>
             <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px;">سلتك لا تحتوي على أي منتجات في الوقت الحالي.</p>
-            <a href="/php-ecommerce-project/pages/products.php" style="background-color: #0c2340; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; font-size: 14px;">تصفح المنتجات الآن</a>
+            <a href="/php-ecommerce-project/pages/products.php" style="background-color: #0f172a; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; font-size: 14px;">تصفح المنتجات الآن</a>
         </div>
 
         <?php else: ?>
         
-        <!-- البطاقة البيضاء النظيفة الموحدة (طبق الأصل من الصورة المعطاة) -->
-        <div style="background: #ffffff; border-radius: 28px; padding: 40px 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid #eef2f6;">
-            
-            <!-- الهيدر الداخلي للبطاقة -->
-            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 30px;">
-                <span style="font-size: 24px;">🛒</span>
-                <h2 style="font-size: 22px; color: #000000; font-weight: bold; margin: 0;">سلة المشتريات</h2>
-            </div>
-            
-            <!-- جدول المنتجات العريض المتناسق -->
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; text-align: center; vertical-align: middle;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid #f1f5f9; color: #475569; font-size: 15px; font-weight: bold;">
-                            <th style="padding: 15px 10px; text-align: right; font-weight: bold; width: 12%;">المنتج</th>
-                            <th style="padding: 15px 10px; text-align: right; font-weight: bold; width: 40%;">الاسم</th>
-                            <th style="padding: 15px 10px; font-weight: bold; width: 12%;">السعر</th>
-                            <th style="padding: 15px 10px; font-weight: bold; width: 12%;">الكمية</th>
-                            <th style="padding: 15px 10px; font-weight: bold; width: 12%;">الإجمالي</th>
-                            <th style="padding: 15px 10px; font-weight: bold; width: 12%;"></th>
-                        </tr>
-                    </thead>
-                    <tbody style="color: #1e293b; font-size: 15px;">
-                        <?php foreach ($items as $item): ?>
-                        <tr style="border-bottom: 1px solid #f8fafc;">
-                            <!-- صورة المنتج المدورة المتناسقة -->
-                            <td style="padding: 20px 10px; text-align: right;">
-                                <img src="/php-ecommerce-project/<?= htmlspecialchars($item['image_url'] ?? '') ?>"
-                                     alt="" width="65" height="65"
-                                     onerror="this.src='/php-ecommerce-project/assets/images/products/placeholder.jpg'"
-                                     style="object-fit: cover; border-radius: 14px; border: 1px solid #f1f5f9;">
-                            </td>
-                            <!-- اسم المنتج (محاذي لليمين بجانب الصورة) -->
-                            <td style="padding: 20px 10px; text-align: right; font-weight: 500; color: #0f172a;">
-                                <?= htmlspecialchars($item['name']) ?>
-                            </td>
-                            <!-- السعر الفرعي -->
-                            <td style="padding: 20px 10px; color: #334155; font-weight: 500;">
-                                ₪ <?= number_format($item['price'], 0) ?>
-                            </td>
-                            <!-- حقل إدخال رقم الكمية بتصميم الحواف الناعمة النظيفة -->
-                            <td style="padding: 20px 10px;">
-                                <form method="POST" style="display: inline-block;">
-                                    <input type="hidden" name="action"  value="update">
-                                    <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
-                                    <input type="number" name="quantity"
-                                           value="<?= $item['quantity'] ?>"
-                                           min="1" max="<?= $item['stock_quantity'] ?>"
-                                           onchange="this.form.submit()"
-                                           style="width: 65px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 10px; text-align: center; font-size: 14px; font-weight: 500; outline: none; background: #ffffff;">
-                                </form>
-                            </td>
-                            <!-- إجمالي السعر للمنتج الحالي -->
-                            <td style="padding: 20px 10px; font-weight: 600; color: #0f172a;">
-                                ₪ <?= number_format($item['subtotal'], 0) ?>
-                            </td>
-                            <!-- زر الحذف الأحمر الصريح المطابق تماماً للصورة المعروضة -->
-                            <td style="padding: 20px 10px;">
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="action"  value="remove">
-                                    <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
-                                    <button type="submit" style="background-color: #ef4444; color: white; border: none; padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">
-                                        🗑️ حذف
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 30px;">
+            <span style="font-size: 26px;">🛒</span>
+            <h2 style="font-size: 24px; color: #0f172a; font-weight: 800; margin: 0;">حقيبة المشتريات (<?= count($items) ?>)</h2>
+        </div>
 
-            <!-- خط فاصل ناعم سفلي -->
-            <div style="border-bottom: 1px solid #edf2f7; margin-top: 20px; margin-bottom: 30px;"></div>
-
-            <!-- الفوتر السفلي للبطاقة: يحتوي على المجموع الكلي الاستراتيجي المائل لليمين، وزر الشراء المائل لليسار -->
-            <form method="POST" style="margin: 0;">
-                <input type="hidden" name="action" value="checkout">
+        <div class="cart-layout-container">
+            
+            <div class="cart-summary-section">
+                <h3 style="font-size: 18px; color: #0f172a; margin-top: 0; margin-bottom: 20px; font-weight: bold; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">ملخص الطلب</h3>
                 
-                <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 14px; color: #475569;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>المجموع الفرعي:</span>
+                        <span style="font-weight: 600; color: #0f172a;">₪ <?= number_format($subtotal, 0) ?></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>الضريبة المضافة (16%):</span>
+                        <span style="font-weight: 600; color: #0f172a;">₪ <?= number_format($subtotal * 0.16, 0) ?></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>تكلفة الشحن:</span>
+                        <span style="color: #10b981; font-weight: bold;">مجاني</span>
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 8px 0;">
+                    <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #0f172a;">
+                        <span>المجموع الكلي:</span>
+                        <span style="color: #0f172a;">₪ <?= number_format($finalTotal, 0) ?></span>
+                    </div>
+                </div>
+
+                <form method="POST" style="margin: 0;">
+                    <input type="hidden" name="action" value="checkout">
                     
-                    <!-- الكتلة اليمينية: المجموع الكلي + مدخل العنوان المدمج بذكاء -->
-                    <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 450px;">
-                        <div style="font-size: 20px; font-weight: bold; color: #000000; display: flex; align-items: center; gap: 5px;">
-                            <span>المجموع الكلي:</span>
-                            <span style="color: #000000; font-size: 22px;">₪ <?= number_format($finalTotal, 0) ?></span>
-                            <span style="font-size: 12px; color: #94a3b8; font-weight: normal; margin-right: 5px;">(شامل الضريبة 16% وشحن مجاني)</span>
-                        </div>
-                        
-                        <!-- إدخال عنوان الشحن بطريقة مدمجة وأنيقة لحل مشكلة الإرسال -->
-                        <div style="display: flex; flex-direction: column; gap: 5px;">
-                            <label style="font-size: 13px; color: #475569; font-weight: bold;">عنوان التوصيل للتثبيت والطلب *</label>
-                            <input type="text" name="shipping_address" 
-                                   placeholder="مثال: رام الله، شارع الإرسال، عمارة الأمل" 
-                                   required
-                                   style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box; text-align: right;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 25px;">
+                        <label style="font-size: 13px; color: #334155; font-weight: 700;">📍 عنوان التوصيل الفعلي *</label>
+                        <input type="text" name="shipping_address" 
+                               placeholder="المدينة، اسم الشارع، رقم البناية" 
+                               required
+                               style="width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box; background: #f8fafc;">
+                    </div>
+
+                    <button type="submit" style="width: 100%; background-color: #10b981; color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); transition: background-color 0.2s;">
+                        تأكيد وإرسال الطلب 👍
+                    </button>
+                </form>
+            </div>
+
+            <div class="cart-items-section">
+                <?php foreach ($items as $item): ?>
+                <div class="product-card-row">
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 2; text-align: right;">
+                        <img src="/php-ecommerce-project/<?= htmlspecialchars($item['image_url'] ?? '') ?>"
+                             alt="" width="75" height="75"
+                             onerror="this.src='/php-ecommerce-project/assets/images/products/placeholder.jpg'"
+                             style="object-fit: cover; border-radius: 14px; border: 1px solid #e2e8f0; flex-shrink: 0;">
+                        <div>
+                            <h4 style="margin: 0 0 6px 0; font-size: 15px; color: #0f172a; font-weight: bold; line-height: 1.4;"><?= htmlspecialchars($item['name']) ?></h4>
+                            <span style="font-size: 14px; color: #64748b; font-weight: 500;">سعر الوحدة: ₪ <?= number_format($item['price'], 0) ?></span>
                         </div>
                     </div>
 
-                    <!-- الكتلة اليسارية: زر إتمام الشراء الأخضر اللامع والملفت المطابق للصورة تماماً -->
-                    <div style="display: flex; align-items: flex-end; justify-content: flex-end; min-height: 80px;">
-                        <button type="submit" style="background-color: #10b981; color: white; border: none; padding: 12px 45px; border-radius: 30px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#059669'" onmouseout="this.style.backgroundColor='#10b981'">
-                            إتمام الشراء
-                        </button>
+                    <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+                        <form method="POST" style="margin: 0;">
+                            <input type="hidden" name="action"  value="update">
+                            <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 13px; color: #64748b;">الكمية:</span>
+                                <input type="number" name="quantity"
+                                       value="<?= $item['quantity'] ?>"
+                                       min="1" max="<?= $item['stock_quantity'] ?>"
+                                       onchange="this.form.submit()"
+                                       class="qty-input-field">
+                            </div>
+                        </form>
+                    </div>
+
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                        <span style="font-size: 16px; font-weight: 700; color: #0f172a;">₪ <?= number_format($item['subtotal'], 0) ?></span>
+                        <form method="POST" style="margin: 0;">
+                            <input type="hidden" name="action"  value="remove">
+                            <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
+                            <button type="submit" class="btn-delete-item">
+                                🗑️ حذف
+                            </button>
+                        </form>
                     </div>
 
                 </div>
-            </form>
+                <?php endforeach; ?>
+            </div>
 
         </div>
         <?php endif; ?>
