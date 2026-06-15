@@ -1,8 +1,8 @@
 <?php
 $pageTitle = 'المنتجات — EliteShop';
-require_once '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/db.php';
-require_once '../includes/navbar.php';
+
 // ── فلترة وبحث ──────────────────────────────────────────────
 $search   = trim($_GET['search']   ?? '');
 $catId    = (int)($_GET['category'] ?? 0);
@@ -130,6 +130,22 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
         <div style="width: 50px; height: 4px; background-color: #3b82f6; border-radius: 2px;"></div>
     </div>
 
+    <?php if (isset($_GET['success']) && $_GET['success'] === 'added'): ?>
+        <div style="margin-bottom: 25px;">
+            <div style="background-color: #ecfdf5; color: #059669; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; border: 1px solid #a7f3d0; text-align: right;">
+                ✅ تم إضافة المنتج بنجاح إلى السلة!
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['error']) && $_GET['error'] === 'out_of_stock'): ?>
+        <div style="margin-bottom: 25px;">
+            <div style="background-color: #fef2f2; color: #dc2626; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; border: 1px solid #fecaca; text-align: right;">
+                ⚠️ عذراً، الكمية المطلوبة غير متوفرة في المخزن حالياً.
+            </div>
+        </div>
+    <?php endif; ?>
+
     <form method="GET" class="filters-bar" style="background-color: #ffffff; padding: 24px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 45px; border: 1px solid #e2e8f0;">
 
         <input type="text" name="search"
@@ -227,4 +243,4 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
     </div>
 </main>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
