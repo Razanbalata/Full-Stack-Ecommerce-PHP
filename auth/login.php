@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'تسجيل الدخول — EliteShop';
 require_once '../includes/header.php';
-require_once '../includes/navbar.php';
+//require_once '../includes/navbar.php';
 ?>
 
 <main class="auth-container" style="max-width: 1200px; margin: 0 auto; padding: 60px 20px; font-family: system-ui, -apple-system, sans-serif; direction: rtl; min-height: 75vh; display: flex; align-items: center; justify-content: center;">

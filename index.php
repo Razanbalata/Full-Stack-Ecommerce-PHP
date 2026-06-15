@@ -1,7 +1,7 @@
 <?php
 // 1. استدعاء الهيدر المشترك وقاعدة البيانات في البداية
 include 'includes/header.php';
-require_once 'includes/db.php';
+//require_once 'includes/db.php';
 
 // جلب آخر 6 منتجات مميزة مضافة ديناميكياً
 $featured = $conn->query(

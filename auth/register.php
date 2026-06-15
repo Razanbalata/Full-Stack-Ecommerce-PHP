@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'إنشاء حساب — EliteShop';
 require_once '../includes/header.php';
-require_once '../includes/navbar.php';
+//require_once '../includes/navbar.php';
 ?>
 
 <main class="auth-container" style="max-width: 1200px; margin: 0 auto; padding: 40px 20px; font-family: system-ui, -apple-system, sans-serif; direction: rtl; min-height: 80vh; display: flex; align-items: center; justify-content: center;">

@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// حل مشكلة المسار الديناميكي عبر تحديد المجلد الرئيسي للمشروع (php-ecommerce-project)
+// حل مشكلة المسار الديناميكي عبر تحديد المجلد الرئيسي للمشروع
 $base_dir = dirname(__DIR__); 
 $db_path = $base_dir . '/includes/db.php';
 
@@ -13,22 +13,23 @@ if (file_exists($db_path)) {
 
 $cartCount = 0;
 
-// التحقق من وجود الجلسة والاتصال قبل تشغيل الاستعلام
+// التحقق من وجود الجلسة والاتصال وتشغيل استعلام آمن (Prepared Statement)
 if (isset($_SESSION['user_id']) && isset($conn) && $conn instanceof mysqli) {
     $uid = (int)$_SESSION['user_id'];
 
-    // استعلام مباشر وسريع لحساب إجمالي الكميات في السلة
-    $query = "SELECT SUM(quantity) AS total FROM cart_items WHERE user_id = $uid";
-    $result = mysqli_query($conn, $query);
-
-    if ($result) {
-        $row = mysqli_fetch_assoc($result);
-        $cartCount = isset($row['total']) ? (int)$row['total'] : 0;
+    // استخدام Prepared Statement للحماية الكاملة من الـ SQL Injection
+    $stmt = mysqli_prepare($conn, "SELECT SUM(quantity) AS total FROM cart_items WHERE user_id = ?");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "i", $uid);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if ($row = mysqli_fetch_assoc($result)) {
+            $cartCount = isset($row['total']) ? (int)$row['total'] : 0;
+        }
+        mysqli_stmt_close($stmt);
     }
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -140,7 +141,6 @@ if (isset($_SESSION['user_id']) && isset($conn) && $conn instanceof mysqli) {
 <body>
 
     <header>
-
         <button class="menu-toggle-btn" onclick="toggleDropdown()">☰</button>
 
         <div class="logo">
@@ -157,7 +157,6 @@ if (isset($_SESSION['user_id']) && isset($conn) && $conn instanceof mysqli) {
                 </span>
             </a>
         </div>
-
     </header>
 
     <script>
