@@ -1,5 +1,5 @@
 <?php
-// api/add-to-cart.php — معالج إضافة للسلة
+// api/add-to-cart.php — معالج إضافة للسلة معالج ومؤمن بالكامل
 session_start();
 require_once __DIR__ . '/../includes/db.php';
 
@@ -26,8 +26,12 @@ $check->bind_param('i', $productId);
 $check->execute();
 $product = $check->get_result()->fetch_assoc();
 
+// إزالة أي علامات زائدة ممررة بالخطأ في حقل الـ redirect المخفي
+$redirect = rtrim($redirect, '?&'); 
+$separator = (strpos($redirect, '?') !== false) ? '&' : '?';
+
 if (!$product || $product['stock_quantity'] < $quantity) {
-    header("Location: $redirect&error=out_of_stock");
+    header("Location: " . $redirect . $separator . "error=out_of_stock");
     exit;
 }
 
@@ -40,7 +44,6 @@ $stmt = $conn->prepare("
 $stmt->bind_param('iiii', $userId, $productId, $quantity, $quantity);
 $stmt->execute();
 
-$redirect .= (strpos($redirect, '?') !== false) ? '&' : '?';
-header("Location: $redirect&error=out_of_stock");
-
+// التوجيه الصحيح عند النجاح الكامل 
+header("Location: " . $redirect . $separator . "success=added");
 exit;

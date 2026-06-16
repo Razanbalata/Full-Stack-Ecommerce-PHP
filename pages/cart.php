@@ -1,9 +1,13 @@
 <?php
-// pages/cart.php — سلة المشتريات المحدثة طبقاً للتصميم المطلوب
+// pages/cart.php — سلة المشتريات المحدثة طبقاً للتصميم وخيار الفصل الاحترافي
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $pageTitle = 'سلة المشتريات — EliteShop';
-require_once '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/db.php';
-require_once '../includes/navbar.php';
+require_once __DIR__ . '/../includes/navbar.php';
 
 // التحقق من تسجيل الدخول لحماية السلة
 if (!isset($_SESSION['user_id'])) {
@@ -13,81 +17,26 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = (int)$_SESSION['user_id'];
 
-// ── معالجة تحديث الكمية وإجراءات السلة ─────────────────────────────────────
+// ── معالجة تحديث الكمية وإجراءات الحذف من السلة ─────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($_POST['action'] === 'update') {
         $cartId  = (int)$_POST['cart_id'];
         $newQty  = max(1, (int)$_POST['quantity']);
-        $stmt = $conn->prepare(
-            "UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND user_id = ?"
-        );
+        $stmt = $conn->prepare("UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND user_id = ?");
         $stmt->bind_param('iii', $newQty, $cartId, $userId);
         $stmt->execute();
     }
 
     if ($_POST['action'] === 'remove') {
         $cartId = (int)$_POST['cart_id'];
-        $stmt = $conn->prepare(
-            "DELETE FROM cart_items WHERE cart_id = ? AND user_id = ?"
-        );
+        $stmt = $conn->prepare("DELETE FROM cart_items WHERE cart_id = ? AND user_id = ?");
         $stmt->bind_param('ii', $cartId, $userId);
         $stmt->execute();
     }
 
-    if ($_POST['action'] === 'checkout') {
-        $address = trim($_POST['shipping_address'] ?? '');
-        if (!empty($address)) {
-            // حساب المجموع الكلي الفعلي شامل الضريبة 16% لإدخاله في الطلب
-            $totalRes = $conn->query(
-                "SELECT SUM(p.price * ci.quantity) AS total
-                 FROM cart_items ci
-                 JOIN products p ON ci.product_id = p.product_id
-                 WHERE ci.user_id = $userId"
-            );
-            $subtotal = (float)($totalRes->fetch_assoc()['total'] ?? 0);
-            $totalWithTax = $subtotal * 1.16; // المجموع شامل الضريبة
-
-            if ($subtotal > 0) {
-                // إدخال الأوردر الرئيسي
-                $oStmt = $conn->prepare(
-                    "INSERT INTO orders (user_id, total_amount, shipping_address)
-                     VALUES (?, ?, ?)"
-                );
-                $oStmt->bind_param('ids', $userId, $totalWithTax, $address);
-                $oStmt->execute();
-                $orderId = $conn->insert_id;
-
-                // إدخال تفاصيل عناصر الأوردر
-                $items = $conn->query(
-                    "SELECT ci.product_id, ci.quantity, p.price
-                     FROM cart_items ci
-                     JOIN products p ON ci.product_id = p.product_id
-                     WHERE ci.user_id = $userId"
-                );
-                $iStmt = $conn->prepare(
-                    "INSERT INTO order_items (order_id, product_id, quantity, unit_price)
-                     VALUES (?, ?, ?, ?)"
-                );
-                while ($item = $items->fetch_assoc()) {
-                    $iStmt->bind_param('iiid',
-                        $orderId, $item['product_id'],
-                        $item['quantity'], $item['price']
-                    );
-                    $iStmt->execute();
-                }
-
-                // إفراغ محتويات السلة للمستخدم بعد الشراء بنجاح
-                $conn->query("DELETE FROM cart_items WHERE user_id = $userId");
-                $checkoutSuccess = true;
-            }
-        }
-    }
-
-    if (!isset($checkoutSuccess)) {
-        header('Location: cart.php');
-        exit;
-    }
+    header('Location: cart.php');
+    exit;
 }
 
 // ── جلب وعرض عناصر السلة الحالية للمستخدم ─────────────────────────────────
@@ -184,15 +133,7 @@ $finalTotal = $subtotal * 1.16;
 <div style="background-color: #f8fafc; min-height: 85vh; padding: 50px 20px; font-family: system-ui, -apple-system, sans-serif; direction: rtl; box-sizing: border-box;">
     <main style="max-width: 1200px; margin: 0 auto;">
 
-        <?php if (!empty($checkoutSuccess)): ?>
-        <div style="text-align: center; padding: 50px 20px; background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-width: 500px; margin: 40px auto; border: 1px solid #e2e8f0;">
-            <div style="font-size: 55px; margin-bottom: 15px;">🎉</div>
-            <h2 style="color: #10b981; font-weight: bold; margin-bottom: 12px; font-size: 24px;">تم تقديم طلبك بنجاح!</h2>
-            <p style="color: #64748b; font-size: 15px; margin-bottom: 25px;">رقم طلبك المميز هو: <strong style="color: #0f172a;">#<?= $orderId ?></strong></p>
-            <a href="/php-ecommerce-project/pages/products.php" style="background-color: #0f172a; color: white; padding: 12px 35px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; font-size: 14px;">تسوق مجدداً ←</a>
-        </div>
-
-        <?php elseif (empty($items)): ?>
+        <?php if (empty($items)): ?>
         <div style="text-align: center; padding: 60px 20px; background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-width: 550px; margin: 40px auto; border: 1px dashed #cbd5e1;">
             <div style="font-size: 55px; margin-bottom: 15px;">🛒</div>
             <h2 style="color: #475569; font-weight: bold; margin-bottom: 10px; font-size: 22px;">سلة المشتريات فارغة</h2>
@@ -232,21 +173,9 @@ $finalTotal = $subtotal * 1.16;
                     </div>
                 </div>
 
-                <form method="POST" style="margin: 0;">
-                    <input type="hidden" name="action" value="checkout">
-                    
-                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 25px;">
-                        <label style="font-size: 13px; color: #334155; font-weight: 700;">📍 عنوان التوصيل الفعلي *</label>
-                        <input type="text" name="shipping_address" 
-                               placeholder="المدينة، اسم الشارع، رقم البناية" 
-                               required
-                               style="width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box; background: #f8fafc;">
-                    </div>
-
-                    <button type="submit" style="width: 100%; background-color: #10b981; color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); transition: background-color 0.2s;">
-                        تأكيد وإرسال الطلب 👍
-                    </button>
-                </form>
+                <a href="/php-ecommerce-project/pages/checkout.php" style="display: block; text-align: center; text-decoration: none; background-color: #10b981; color: white; padding: 14px; border-radius: 14px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); transition: background-color 0.2s; margin-top: 20px;">
+                    الانتخاب لإتمام الشحن والدفع 💳
+                </a>
             </div>
 
             <div class="cart-items-section">
