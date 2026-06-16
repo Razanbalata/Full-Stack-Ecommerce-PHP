@@ -9,7 +9,7 @@
                 <li><a href="/php-ecommerce-project/admin/dashboard.php" style="color: #f59e0b; font-weight: bold;">لوحة التحكم (Admin)</a></li>
             <?php else: ?>
                 <li><a href="/php-ecommerce-project/pages/cart.php">سلة التسوق</a></li>
-                <li><a href="/php-ecommerce-project/auth/profile.php">الملف الشخصي</a></li>
+                <li><a href="/php-ecommerce-project/pages/profile.php">الملف الشخصي</a></li>
             <?php endif; ?>
             <li><a href="/php-ecommerce-project/auth/logout.php" style="color: #ef4444;">خروج</a></li>
         <?php else: ?>

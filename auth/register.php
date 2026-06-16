@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass2 = trim($_POST['password2']  ?? '');
     $phone = trim($_POST['phone']      ?? '');
 
-    // Validation
+    // التحقق من الحقول الإلزامية (Validation)
     if (empty($name) || empty($email) || empty($pass)) {
         $error = 'يرجى تعبئة جميع الحقول المطلوبة.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -23,25 +23,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($pass !== $pass2) {
         $error = 'كلمتا المرور غير متطابقتين.';
     } else {
-        // تحقق من عدم تكرار البريد الإلكتروني
+        // تحقق من عدم تكرار البريد الإلكتروني في قاعدة البيانات
         $chk = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
         $chk->bind_param('s', $email);
         $chk->execute();
         if ($chk->get_result()->num_rows > 0) {
             $error = 'هذا البريد الإلكتروني مسجل مسبقاً.';
         } else {
+            // تشفير كلمة المرور بأسلوب أمني معتمد
             $hash = password_hash($pass, PASSWORD_DEFAULT);
+            
+            // تم تصحيح اسم العمود هنا إلى 'password' ليتطابق مع الـ Schema الخاص بكِ
             $stmt = $conn->prepare(
-                "INSERT INTO users (full_name, email, password_hash, phone) VALUES (?, ?, ?, ?)"
+                "INSERT INTO users (full_name, email, password, phone) VALUES (?, ?, ?, ?)"
             );
             $stmt->bind_param('ssss', $name, $email, $hash, $phone);
+            
             if ($stmt->execute()) {
+                // حفظ بيانات الجلسة الحية للمستخدم لتسجيل دخوله تلقائياً بعد التسجيل
                 $_SESSION['user_id']   = $conn->insert_id;
                 $_SESSION['full_name'] = $name;
+                $_SESSION['role']      = 'customer'; // يأخذ القيمة الافتراضية للزبائن فوراً
+                
+                // التوجيه الفوري للصفحة الرئيسية للمتجر
                 header('Location: /php-ecommerce-project/index.php');
                 exit;
             } else {
-                $error = 'حدث خطأ، حاول مجدداً.';
+                $error = 'حدث خطأ غير متوقع أثناء إنشاء الحساب، حاول مجدداً.';
             }
         }
     }
@@ -49,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'إنشاء حساب — EliteShop';
 require_once '../includes/header.php';
-//require_once '../includes/navbar.php';
 ?>
 
 <main class="auth-container" style="max-width: 1200px; margin: 0 auto; padding: 40px 20px; font-family: system-ui, -apple-system, sans-serif; direction: rtl; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
