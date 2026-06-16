@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // تحويل العميل لصفحة النجاح وتمرير المعرف
             $_SESSION['last_order_id'] = $orderId;
-            header('Location: /php-ecommerce-project/pages/my-orders.php');
+            header('Location: /php-ecommerce-project/pages/order-success.php');
             exit;
 
         } catch (Exception $e) {
